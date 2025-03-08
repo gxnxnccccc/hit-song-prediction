@@ -1,0 +1,506 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hit Song Predictor</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: #f9f9f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .prediction-container {
+            display: none;
+            transition: all 0.5s ease;
+        }
+        .header {
+            background: linear-gradient(135deg, #8e2de2, #4a00e0);
+            color: white;
+            padding: 30px 0;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        .feature-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .result-card {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .progress {
+            height: 25px;
+            border-radius: 15px;
+            background-color: rgba(255, 255, 255, 0.3);
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+        .progress-bar {
+            background-color: #ffcc00;
+            color: #000;
+            font-weight: bold;
+        }
+        .factor-list {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .positive {
+            color: #adff2f;
+        }
+        .negative {
+            color: #ffcccb;
+        }
+        .slider-container {
+            padding: 10px 0;
+        }
+        .slider-value {
+            font-weight: bold;
+            text-align: center;
+            min-width: 60px;
+            display: inline-block;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #8e2de2, #4a00e0);
+            border: none;
+            padding: 10px 30px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #7928ca, #3b0eba);
+            transform: translateY(-2px);
+        }
+        .form-label {
+            font-weight: 600;
+            color: #555;
+        }
+        .example-btn {
+            margin-right: 10px;
+            margin-bottom: 10px;
+            background-color: #f0f0f0;
+            color: #333;
+            border: none;
+            transition: all 0.3s;
+        }
+        .example-btn:hover {
+            background-color: #e0e0e0;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header text-center">
+        <div class="container">
+            <h1 class="display-4"><i class="fas fa-music"></i> Hit Song Predictor</h1>
+            <p class="lead">Enter your song's audio features to predict its popularity!</p>
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="feature-card">
+                    <h3 class="mb-4"><i class="fas fa-lightbulb"></i> Quick Start</h3>
+                    <p>Load example song profiles to see how different types of songs might perform:</p>
+                    <div id="example-buttons" class="mb-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading examples...</span>
+                        </div>
+                        <span class="ms-2">Loading example songs...</span>
+                    </div>
+                </div>
+
+                <form id="prediction-form" class="mb-4">
+                    <div class="feature-card">
+                        <h3 class="mb-4"><i class="fas fa-info-circle"></i> Song Information</h3>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="song" class="form-label">Song Title</label>
+                                <input type="text" class="form-control" id="song" name="song" placeholder="Enter song title">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="artist" class="form-label">Artist</label>
+                                <input type="text" class="form-control" id="artist" name="artist" placeholder="Enter artist name">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="year" class="form-label">Release Year</label>
+                                <input type="number" class="form-control" id="year" name="year" min="1900" max="2025" value="2023">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="duration_minutes" class="form-label">Duration (minutes)</label>
+                                <input type="number" step="0.1" class="form-control" id="duration_minutes" name="duration_minutes" min="0.5" max="10" value="3.5">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <h3 class="mb-4"><i class="fas fa-sliders-h"></i> Audio Features</h3>
+                        
+                        <div class="mb-3">
+                            <label for="tempo" class="form-label">Tempo (BPM)</label>
+                            <div class="d-flex align-items-center slider-container">
+                                <input type="range" class="form-range flex-grow-1" id="tempo" name="tempo" min="60" max="200" step="1" value="120">
+                                <span class="slider-value ms-2" id="tempo-value">120</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="loudness" class="form-label">Loudness (dB)</label>
+                            <div class="d-flex align-items-center slider-container">
+                                <input type="range" class="form-range flex-grow-1" id="loudness" name="loudness" min="-20" max="0" step="0.1" value="-7">
+                                <span class="slider-value ms-2" id="loudness-value">-7</span>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="energy" class="form-label">Energy (0-1)</label>
+                                    <div class="d-flex align-items-center slider-container">
+                                        <input type="range" class="form-range flex-grow-1" id="energy" name="energy" min="0" max="1" step="0.01" value="0.65">
+                                        <span class="slider-value ms-2" id="energy-value">0.65</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="danceability" class="form-label">Danceability (0-1)</label>
+                                    <div class="d-flex align-items-center slider-container">
+                                        <input type="range" class="form-range flex-grow-1" id="danceability" name="danceability" min="0" max="1" step="0.01" value="0.70">
+                                        <span class="slider-value ms-2" id="danceability-value">0.70</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="valence" class="form-label">Valence/Positivity (0-1)</label>
+                                    <div class="d-flex align-items-center slider-container">
+                                        <input type="range" class="form-range flex-grow-1" id="valence" name="valence" min="0" max="1" step="0.01" value="0.50">
+                                        <span class="slider-value ms-2" id="valence-value">0.50</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="acousticness" class="form-label">Acousticness (0-1)</label>
+                                    <div class="d-flex align-items-center slider-container">
+                                        <input type="range" class="form-range flex-grow-1" id="acousticness" name="acousticness" min="0" max="1" step="0.01" value="0.25">
+                                        <span class="slider-value ms-2" id="acousticness-value">0.25</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="instrumentalness" class="form-label">Instrumentalness (0-1)</label>
+                                    <div class="d-flex align-items-center slider-container">
+                                        <input type="range" class="form-range flex-grow-1" id="instrumentalness" name="instrumentalness" min="0" max="1" step="0.01" value="0.05">
+                                        <span class="slider-value ms-2" id="instrumentalness-value">0.05</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="liveness" class="form-label">Liveness (0-1)</label>
+                                    <div class="d-flex align-items-center slider-container">
+                                        <input type="range" class="form-range flex-grow-1" id="liveness" name="liveness" min="0" max="1" step="0.01" value="0.15">
+                                        <span class="slider-value ms-2" id="liveness-value">0.15</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="speechiness" class="form-label">Speechiness (0-1)</label>
+                                    <div class="d-flex align-items-center slider-container">
+                                        <input type="range" class="form-range flex-grow-1" id="speechiness" name="speechiness" min="0" max="1" step="0.01" value="0.10">
+                                        <span class="slider-value ms-2" id="speechiness-value">0.10</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="key" class="form-label">Musical Key</label>
+                                    <select class="form-select" id="key" name="key">
+                                        <option value="0">C</option>
+                                        <option value="1">C♯/D♭</option>
+                                        <option value="2">D</option>
+                                        <option value="3">D♯/E♭</option>
+                                        <option value="4">E</option>
+                                        <option value="5">F</option>
+                                        <option value="6">F♯/G♭</option>
+                                        <option value="7" selected>G</option>
+                                        <option value="8">G♯/A♭</option>
+                                        <option value="9">A</option>
+                                        <option value="10">A♯/B♭</option>
+                                        <option value="11">B</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="mode" class="form-label">Mode</label>
+                            <select class="form-select" id="mode" name="mode">
+                                <option value="1" selected>Major</option>
+                                <option value="0">Minor</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-chart-line"></i> Predict Popularity
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3">Analyzing song features...</p>
+                </div>
+
+                <div class="prediction-container" id="prediction-container">
+                    <div class="result-card">
+                        <h2 class="mb-3"><i class="fas fa-poll"></i> Prediction Results</h2>
+                        <h3 id="song-title" class="mb-4">Song Title by Artist</h3>
+                        
+                        <div class="mb-3">
+                            <h4>Popularity Score: <span id="popularity-score">0</span>/100</h4>
+                            <div class="progress">
+                                <div class="progress-bar" id="popularity-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">0%</div>
+                            </div>
+                            <div class="text-center mb-4">
+                                <span class="badge bg-light text-dark p-2" id="hit-badge">Potential Hit Status</span>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="factor-list">
+                                    <h5><i class="fas fa-plus-circle positive"></i> Positive Factors</h5>
+                                    <ul id="positive-factors" class="list-unstyled">
+                                        <!-- Positive factors will be added here -->
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="factor-list">
+                                    <h5><i class="fas fa-minus-circle negative"></i> Areas for Improvement</h5>
+                                    <ul id="negative-factors" class="list-unstyled">
+                                        <!-- Negative factors will be added here -->
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-light py-4">
+        <div class="container text-center">
+            <p>Hit Song Predictor &copy; 2025 | Powered by Machine Learning</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap & jQuery JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Update slider values
+        const sliders = ['tempo', 'loudness', 'energy', 'danceability', 'valence', 'acousticness', 'instrumentalness', 'liveness', 'speechiness'];
+        sliders.forEach(slider => {
+            const input = document.getElementById(slider);
+            const value = document.getElementById(`${slider}-value`);
+            input.addEventListener('input', () => {
+                value.textContent = input.value;
+            });
+        });
+        
+        // Load example songs
+        $(document).ready(function() {
+            // Fetch example songs
+            $.ajax({
+                url: '/example_songs',
+                type: 'GET',
+                success: function(data) {
+                    const exampleButtons = $('#example-buttons');
+                    exampleButtons.empty(); // Clear loading spinner
+                    
+                    // Create buttons for each example
+                    data.forEach(example => {
+                        const button = $('<button>')
+                            .addClass('btn example-btn')
+                            .text(example.name)
+                            .click(function() {
+                                fillFormWithExample(example);
+                            });
+                        exampleButtons.append(button);
+                    });
+                },
+                error: function() {
+                    $('#example-buttons').html('<div class="alert alert-danger">Failed to load example songs</div>');
+                }
+            });
+            
+            // Form submission
+            $('#prediction-form').submit(function(e) {
+                e.preventDefault();
+                
+                // Show loading indicator
+                $('#loading').show();
+                $('#prediction-container').hide();
+                
+                // Collect form data
+                const formData = $(this).serialize();
+                
+                // Send prediction request
+                $.ajax({
+                    url: '/predict',
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        $('#loading').hide();
+                        
+                        if (response.success) {
+                            displayPrediction(response.prediction);
+                        } else {
+                            alert('Error: ' + response.error);
+                        }
+                    },
+                    error: function() {
+                        $('#loading').hide();
+                        alert('Server error occurred. Please try again.');
+                    }
+                });
+            });
+        });
+        
+        function fillFormWithExample(example) {
+            // Fill form fields with example data
+            $('#song').val(example.song);
+            $('#artist').val(example.artist);
+            $('#year').val(example.year);
+            $('#duration_minutes').val(example.duration_minutes);
+            $('#tempo').val(example.tempo);
+            $('#tempo-value').text(example.tempo);
+            $('#loudness').val(example.loudness);
+            $('#loudness-value').text(example.loudness);
+            $('#valence').val(example.valence);
+            $('#valence-value').text(example.valence);
+            $('#energy').val(example.energy);
+            $('#energy-value').text(example.energy);
+            $('#danceability').val(example.danceability);
+            $('#danceability-value').text(example.danceability);
+            $('#acousticness').val(example.acousticness);
+            $('#acousticness-value').text(example.acousticness);
+            $('#instrumentalness').val(example.instrumentalness);
+            $('#instrumentalness-value').text(example.instrumentalness);
+            $('#liveness').val(example.liveness);
+            $('#liveness-value').text(example.liveness);
+            $('#speechiness').val(example.speechiness);
+            $('#speechiness-value').text(example.speechiness);
+            $('#key').val(example.key);
+            $('#mode').val(example.mode);
+        }
+        
+        function displayPrediction(prediction) {
+            // Update the prediction display
+            const score = prediction.score;
+            const isHit = prediction.isHit;
+            
+            // Update song title
+            $('#song-title').text($('#song').val() + ' by ' + $('#artist').val());
+            
+            // Update score
+            $('#popularity-score').text(score);
+            
+            // Update progress bar
+            $('#popularity-bar').css('width', score + '%').attr('aria-valuenow', score).text(score + '%');
+            
+            // Update color based on score
+            if (score >= 75) {
+                $('#popularity-bar').css('background-color', '#28a745');
+            } else if (score >= 50) {
+                $('#popularity-bar').css('background-color', '#ffc107');
+            } else {
+                $('#popularity-bar').css('background-color', '#dc3545');
+            }
+            
+            // Update hit badge
+            const hitBadge = $('#hit-badge');
+            if (isHit) {
+                hitBadge.text('Potential Hit!').removeClass('bg-light text-dark').addClass('bg-success text-white');
+            } else {
+                hitBadge.text('Not Likely a Hit').removeClass('bg-light text-dark').addClass('bg-secondary text-white');
+            }
+            
+            // Update factors
+            const positiveFactors = $('#positive-factors');
+            const negativeFactors = $('#negative-factors');
+            
+            positiveFactors.empty();
+            negativeFactors.empty();
+            
+            prediction.positiveFactors.forEach(factor => {
+                positiveFactors.append(`<li><i class="fas fa-check-circle me-2 positive"></i>${factor}</li>`);
+            });
+            
+            prediction.negativeFactors.forEach(factor => {
+                negativeFactors.append(`<li><i class="fas fa-exclamation-circle me-2 negative"></i>${factor}</li>`);
+            });
+            
+            // Show the prediction container
+            $('#prediction-container').show();
+            
+            // Scroll to results
+            $('html, body').animate({
+                scrollTop: $('#prediction-container').offset().top - 50
+            }, 500);
+        }
+    </script>
+</body>
+</html>
