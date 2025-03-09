@@ -1,13 +1,60 @@
 /* static/css/style.css */
-body {
-    background-color: #f8f9fa;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+@font-face {
+    font-family: 'BC Sklonar';
+    src: url('../fonts/BCSklonar-Light.otf') format('opentype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
 }
 
-.navbar-brand {
-    font-weight: bold;
-    font-size: 1.5rem;
+@font-face {
+    font-family: 'BC Sklonar';
+    src: url('../fonts/bc-sklonar-medium.otf') format('opentype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
 }
+
+@font-face {
+    font-family: 'BC Sklonar';
+    src: url('../fonts/BCSklonar-Bold.otf') format('opentype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+body {
+    font-family: 'BC Sklonar', sans-serif;
+    font-weight: 300; /* Light weight for better readability in body text */
+    background-color: #f8f9fa;
+  }
+
+  .btn {
+    font-family: 'BC Sklonar', sans-serif;
+    font-weight: 500; /* Medium */
+  }
+
+.navbar-brand {
+    font-family: 'BC Sklonar', sans-serif;
+    font-weight: 700; /* Bold */
+}
+
+h1, h2 {
+    font-family: 'BC Sklonar', sans-serif;
+    font-weight: 700; /* Bold */
+  }
+  
+  h3, h4, h5 {
+    font-family: 'BC Sklonar', sans-serif;
+    font-weight: 500; /* Medium */
+  }
+  
+  .card-header h5 {
+    font-family: 'BC Sklonar', sans-serif;
+    font-weight: 500; /* Medium */
+  }
+  
 
 .card {
     border-radius: 10px;
@@ -34,6 +81,8 @@ body {
 }
 
 .list-group-item {
+    font-family: 'BC Sklonar', sans-serif;
+    font-weight: 300;
     padding: 0.5rem 1rem;
     border: none;
     position: relative;

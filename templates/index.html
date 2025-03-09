@@ -67,7 +67,7 @@
                                     <div class="col">
                                         <label for="song-select" class="form-label">Choose a song</label>
                                         <select class="form-select" id="song-select">
-                                            <option value="" selected>Select a song</option>
+                                            <option value="" selected style="color: #adb5bd;">Select a song</option>
                                             {% for song in sample_songs %}
                                             <option value="{{ song.id }}">{{ song.artist }} - {{ song.song }} ({{ song.year }})</option>
                                             {% endfor %}
