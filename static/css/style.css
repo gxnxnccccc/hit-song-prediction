@@ -1,0 +1,98 @@
+/* static/css/style.css */
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.card {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+}
+
+.form-label {
+    font-weight: 500;
+}
+
+.form-label small {
+    font-weight: normal;
+    font-size: 0.8rem;
+    display: block;
+}
+
+.feature-value {
+    min-width: 50px;
+    text-align: right;
+}
+
+.list-group-item {
+    padding: 0.5rem 1rem;
+    border: none;
+    position: relative;
+    padding-left: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.list-group-item:before {
+    content: "•";
+    position: absolute;
+    left: 0.5rem;
+}
+
+#positive-factors .list-group-item:before {
+    color: #198754;
+}
+
+#negative-factors .list-group-item:before {
+    color: #dc3545;
+}
+
+#results-card {
+    transition: all 0.3s ease;
+}
+
+.footer {
+    border-top: 1px solid #e9ecef;
+}
+
+/* Styling for the tabs */
+.nav-tabs .nav-link {
+    border: none;
+    color: #495057;
+    font-weight: 500;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: transparent;
+    border-bottom: 2px solid #0d6efd;
+    color: #0d6efd;
+}
+
+/* Styling for range sliders */
+.form-range::-webkit-slider-thumb {
+    background: #0d6efd;
+}
+
+.form-range::-moz-range-thumb {
+    background: #0d6efd;
+}
+
+/* Styling for the prediction gauge and charts */
+#score-gauge {
+    margin: 0 auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    .card-body {
+        padding: 1rem;
+    }
+}
