@@ -1,0 +1,55 @@
+{
+  "rmse": 9.408786495305302,
+  "mae": 7.502318153238738,
+  "r2_score": 0.22588592689387266,
+  "feature_importance": {
+    "year": 0.12906515992815376,
+    "duration_ms": 0.09188484542912018,
+    "energy": 0.08836557578557201,
+    "acousticness": 0.08772480541426896,
+    "loudness": 0.08756540755974132,
+    "liveness": 0.08289813362763437,
+    "danceability": 0.08215470808007368,
+    "valence": 0.08001853642040294,
+    "tempo": 0.07931208274563512,
+    "speechiness": 0.07388082802004782,
+    "instrumentalness": 0.06085562162478783,
+    "key": 0.04443489106585723,
+    "mode": 0.011839404298704795
+  },
+  "max_popularity": 100,
+  "selected_features": [
+    "duration_ms",
+    "year",
+    "danceability",
+    "energy",
+    "key",
+    "loudness",
+    "mode",
+    "speechiness",
+    "acousticness",
+    "instrumentalness",
+    "liveness",
+    "valence",
+    "tempo"
+  ],
+  "classification_metrics": {
+    "threshold": 65,
+    "accuracy": 0.6978021978021978,
+    "precision": 0.765625,
+    "recall": 0.6933962264150944,
+    "f1_score": 0.7277227722772277,
+    "confusion_matrix": [
+      [
+        107,
+        45
+      ],
+      [
+        65,
+        147
+      ]
+    ],
+    "classification_report": "              precision    recall  f1-score   support\n\n     Non-Hit       0.62      0.70      0.66       152\n         Hit       0.77      0.69      0.73       212\n\n    accuracy                           0.70       364\n   macro avg       0.69      0.70      0.69       364\nweighted avg       0.71      0.70      0.70       364\n"
+  },
+  "training_time_seconds": 459.6729018688202
+}

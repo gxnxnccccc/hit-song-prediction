@@ -145,3 +145,66 @@ h1, h2 {
         padding: 1rem;
     }
 }
+
+/* Feature Summary Styling */
+.feature-summary-item {
+    background-color: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.feature-name {
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+.feature-value-display {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #212529;
+}
+
+/* Make feature values wrap better on mobile */
+@media (max-width: 767.98px) {
+    .col-md-4.mb-3 {
+        width: 50%;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .col-md-4.mb-3 {
+        width: 100%;
+    }
+}
+
+/* Feature importance indicator */
+.importance-indicator {
+    margin-bottom: 5px;
+}
+
+.feature-summary-item {
+    background-color: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    height: 100%; /* Make all boxes the same height */
+    display: flex;
+    flex-direction: column;
+}
+
+.feature-name {
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+.feature-value-display {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #212529;
+    margin-top: auto; /* Push value to bottom for consistent alignment */
+}

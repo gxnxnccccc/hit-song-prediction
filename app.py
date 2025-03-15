@@ -1,4 +1,3 @@
-# app.py
 import os
 import pickle
 import pandas as pd
@@ -13,15 +12,12 @@ app = Flask(__name__)
 def test():
     return "This is a test route!"
 
-# Load the trained model
 MODEL_PATH = 'hit_song_model.pkl'
 predictor = HitSongPredictor()
 predictor.load_model(MODEL_PATH)
 
-# Load the dataset for pre-existing songs
 dataset = pd.read_csv('songs_filtered.csv')
 
-# Get feature ranges for sliders
 feature_ranges = {}
 for feature in predictor.selected_features:
     if feature in dataset.columns and feature not in ['year', 'key', 'mode']:
@@ -31,12 +27,10 @@ for feature in predictor.selected_features:
             'default': float(dataset[feature].median())
         }
 
-# Handle special cases
 feature_ranges['year'] = {'min': 1960, 'max': 2023, 'default': 2020}
-feature_ranges['key'] = {'min': 0, 'max': 11, 'default': 5}  # Musical keys (C to B)
-feature_ranges['mode'] = {'min': 0, 'max': 1, 'default': 1}  # Major (1) or minor (0)
+feature_ranges['key'] = {'min': 0, 'max': 11, 'default': 5}  
+feature_ranges['mode'] = {'min': 0, 'max': 1, 'default': 1}  
 
-# Features that need special formatting or explanations
 feature_explanations = {
     'tempo': 'Beats per minute. Pop hits often range from 100-130 BPM.',
     'loudness': 'Measured in dB, with 0 being max. Commercial tracks are often -8 to -4 dB.',
@@ -53,7 +47,6 @@ feature_explanations = {
     'mode': 'Musical mode (0=minor, 1=major)'
 }
 
-# Create a list of sample songs (50 random songs from the dataset)
 sample_songs = dataset.sample(n=50).sort_values('popularity', ascending=False)
 sample_songs_list = []
 for _, row in sample_songs.iterrows():
@@ -79,13 +72,11 @@ def predict():
     try:
         data = request.json
         
-        # Check if we're predicting from a sample song or custom values
         if 'songId' in data and data['songId']:
             song_id = int(data['songId'])
             song_data = dataset.iloc[song_id].to_dict()
             prediction = predictor.predict(song_data)
             
-            # Add song info to the response
             song_info = {
                 'artist': str(song_data['artist']),
                 'song': str(song_data['song']),
@@ -94,7 +85,6 @@ def predict():
             }
             prediction.update(song_info)
             
-            # Add feature values for display
             features = {}
             for feature in predictor.selected_features:
                 if feature in song_data:
@@ -102,7 +92,6 @@ def predict():
             prediction['features'] = features
             
         else:
-            # Create a song data dictionary from custom values
             song_data = {}
             for feature, value in data['features'].items():
                 song_data[feature] = float(value)
@@ -110,7 +99,6 @@ def predict():
             prediction = predictor.predict(song_data)
             prediction['features'] = song_data
         
-        # Make sure all values are JSON serializable
         safe_prediction = {}
         for key, value in prediction.items():
             if key == 'positiveFactors' or key == 'negativeFactors':
@@ -122,7 +110,6 @@ def predict():
                 
         return jsonify(safe_prediction)
     except Exception as e:
-        # Return error message
         return jsonify({'error': str(e)}), 500
 
 @app.route('/get_song_features/<int:song_id>')
