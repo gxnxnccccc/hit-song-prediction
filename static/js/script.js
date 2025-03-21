@@ -288,7 +288,7 @@ function displayResults(data) {
         hitVerdict.textContent = 'Potential Hit! 🎵';
         hitVerdict.className = 'mb-2 text-success';
     } else {
-        hitVerdict.textContent = 'Needs Improvement';
+        // hitVerdict.textContent = 'Needs Improvement';
         hitVerdict.className = 'mb-2 text-danger';
     }
 

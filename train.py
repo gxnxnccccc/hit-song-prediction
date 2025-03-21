@@ -59,17 +59,12 @@ def main():
     print("\nInitializing hit song predictor model...")
     predictor = HitSongPredictor(features=features, target='popularity')
     
-    hit_threshold = 65
-    
-    print(f"\nTraining model with hyperparameter tuning, feature selection, and hit threshold of {hit_threshold}...")
-    
     start_time = time.time()
     
     training_results = predictor.train(
         df, 
         hyperparameter_tuning=True, 
-        use_feature_selection=True,
-        hit_threshold=hit_threshold
+        use_feature_selection=True
     )
     
     end_time = time.time()
@@ -86,14 +81,6 @@ def main():
     print(f"RMSE: {training_results['rmse']:.2f}")
     print(f"MAE: {training_results['mae']:.2f}")
     print(f"R² Score: {training_results['r2_score']:.4f}")
-    
-    if 'classification_metrics' in training_results:
-        print("\nClassification metrics:")
-        cls_metrics = training_results['classification_metrics']
-        print(f"Accuracy: {cls_metrics['accuracy']:.4f}")
-        print(f"Precision: {cls_metrics['precision']:.4f}")
-        print(f"Recall: {cls_metrics['recall']:.4f}")
-        print(f"F1 Score: {cls_metrics['f1_score']:.4f}")
     
     with open('training_results.json', 'w') as f:
 
@@ -136,47 +123,6 @@ def main():
         X, y, test_size=0.2, random_state=42
     )
     
-    print("\nEvaluating different hit thresholds...")
-    threshold_results = predictor.evaluate_thresholds(
-        X_test, y_test, range(50, 80, 5)
-    )
-    
-    print("\nThreshold evaluation results:")
-    for threshold, metrics in threshold_results.items():
-        hit_ratio = metrics['hit_ratio'] * 100
-        print(f"Threshold {threshold}: Accuracy={metrics['accuracy']:.4f}, "
-              f"Precision={metrics['precision']:.4f}, "
-              f"Recall={metrics['recall']:.4f}, "
-              f"F1={metrics['f1_score']:.4f}, "
-              f"Hit ratio={hit_ratio:.1f}%")
-    
-    plt.figure(figsize=(10, 6))
-    thresholds = list(threshold_results.keys())
-    accuracy = [metrics['accuracy'] for metrics in threshold_results.values()]
-    precision = [metrics['precision'] for metrics in threshold_results.values()]
-    recall = [metrics['recall'] for metrics in threshold_results.values()]
-    f1 = [metrics['f1_score'] for metrics in threshold_results.values()]
-    
-    plt.plot(thresholds, accuracy, marker='o', label='Accuracy')
-    plt.plot(thresholds, precision, marker='s', label='Precision')
-    plt.plot(thresholds, recall, marker='^', label='Recall')
-    plt.plot(thresholds, f1, marker='*', label='F1 Score')
-    
-    plt.axvline(x=hit_threshold, color='gray', linestyle='--', label=f'Selected threshold ({hit_threshold})')
-    
-    plt.xlabel('Hit Threshold')
-    plt.ylabel('Score')
-    plt.title('Classification Metrics by Threshold')
-    plt.legend()
-    plt.grid(True, alpha=0.3)
-    plt.savefig('threshold_metrics.png')
-    plt.close()
-    
-    auc_score = predictor.plot_roc_curve(X_test, y_test)
-    print(f"\nROC AUC Score: {auc_score:.4f}")
-    
-    predictor.plot_classification_results(X_test, y_test)
-    
     predictor.save_model('hit_song_model.pkl')
     
     print("\nTesting model with sample songs...")
@@ -190,7 +136,6 @@ def main():
         print(f"Year: {song['year']}")
         print(f"Actual popularity: {song['popularity']}")
         print(f"Predicted score: {prediction['score']:.2f}")
-        print(f"Is a hit: {prediction['isHit']}")
         print("Positive factors:", ", ".join(prediction['positiveFactors'][:2]))
         print("Negative factors:", ", ".join(prediction['negativeFactors'][:2]))
         
@@ -225,7 +170,6 @@ def main():
         print(f"Year: {song['year']}")
         print(f"Actual popularity: {song['popularity']}")
         print(f"Predicted score: {prediction['score']:.2f}")
-        print(f"Is a hit: {prediction['isHit']}")
         print("Positive factors:", ", ".join(prediction['positiveFactors'][:2]))
         print("Negative factors:", ", ".join(prediction['negativeFactors'][:2]))
         
@@ -258,19 +202,13 @@ def main():
         song_df = pd.DataFrame([song])
         prediction = predictor.predict(song_df)
         error = abs(song['popularity'] - prediction['score'])
-        predicted_hit = prediction['isHit']
-        actual_hit = song['popularity'] >= hit_threshold
-        correctly_classified = (predicted_hit == actual_hit)
         
         all_predictions.append({
             'song': song['song'],
             'artist': song['artist'],
             'actual': song['popularity'],
             'predicted': prediction['score'],
-            'error': error,
-            'correctly_classified': correctly_classified,
-            'actual_hit': actual_hit,
-            'predicted_hit': predicted_hit
+            'error': error
         })
     
     predictions_df = pd.DataFrame(all_predictions)
@@ -282,17 +220,6 @@ def main():
     print("\nLeast Accurately Predicted Songs:")
     for _, pred in predictions_df.nlargest(5, 'error').iterrows():
         print(f"{pred['song']} by {pred['artist']}: Actual={pred['actual']}, Predicted={pred['predicted']:.1f}")
-    
-    correctly_classified_hits = predictions_df[(predictions_df['actual_hit'] == True) & 
-                                             (predictions_df['correctly_classified'] == True)]
-    print(f"\nCorrectly classified hits: {len(correctly_classified_hits)} out of {predictions_df['actual_hit'].sum()} total hits")
-    
-    correctly_classified_non_hits = predictions_df[(predictions_df['actual_hit'] == False) & 
-                                                 (predictions_df['correctly_classified'] == True)]
-    print(f"Correctly classified non-hits: {len(correctly_classified_non_hits)} out of {(~predictions_df['actual_hit']).sum()} total non-hits")
-    
-    overall_accuracy = predictions_df['correctly_classified'].mean()
-    print(f"Overall classification accuracy: {overall_accuracy:.4f}")
     
     plt.figure(figsize=(10, 6))
     plt.hist(predictions_df['error'], bins=20, alpha=0.7)

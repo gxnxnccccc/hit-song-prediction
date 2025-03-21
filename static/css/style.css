@@ -1,5 +1,3 @@
-/* static/css/style.css */
-
 @font-face {
     font-family: 'BC Sklonar';
     src: url('../fonts/BCSklonar-Light.otf') format('opentype');
@@ -26,7 +24,7 @@
 
 body {
     font-family: 'BC Sklonar', sans-serif;
-    font-weight: 300; /* Light weight for better readability in body text */
+    font-weight: 300;
     background-color: #f8f9fa;
   }
 
@@ -190,7 +188,7 @@ h1, h2 {
     padding: 12px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    height: 100%; /* Make all boxes the same height */
+    height: 100%; 
     display: flex;
     flex-direction: column;
 }
@@ -206,5 +204,5 @@ h1, h2 {
     font-weight: 700;
     font-size: 1.2rem;
     color: #212529;
-    margin-top: auto; /* Push value to bottom for consistent alignment */
+    margin-top: auto; 
 }

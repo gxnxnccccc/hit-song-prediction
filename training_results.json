@@ -33,23 +33,5 @@
     "valence",
     "tempo"
   ],
-  "classification_metrics": {
-    "threshold": 65,
-    "accuracy": 0.6978021978021978,
-    "precision": 0.765625,
-    "recall": 0.6933962264150944,
-    "f1_score": 0.7277227722772277,
-    "confusion_matrix": [
-      [
-        107,
-        45
-      ],
-      [
-        65,
-        147
-      ]
-    ],
-    "classification_report": "              precision    recall  f1-score   support\n\n     Non-Hit       0.62      0.70      0.66       152\n         Hit       0.77      0.69      0.73       212\n\n    accuracy                           0.70       364\n   macro avg       0.69      0.70      0.69       364\nweighted avg       0.71      0.70      0.70       364\n"
-  },
-  "training_time_seconds": 459.6729018688202
+  "training_time_seconds": 477.7074251174927
 }

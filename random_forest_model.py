@@ -6,11 +6,7 @@ import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import (
-    mean_squared_error, r2_score, mean_absolute_error,
-    accuracy_score, precision_score, recall_score, f1_score,
-    confusion_matrix, classification_report, roc_curve, auc
-)
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 from sklearn.feature_selection import RFECV
 
 class HitSongPredictor:
@@ -20,16 +16,24 @@ class HitSongPredictor:
         self.scaler = StandardScaler()
         self.feature_importance = None
         self.features = features or [
-            'tempo', 'loudness', 'valence', 'energy',
-            'danceability', 'acousticness', 'instrumentalness', 
-            'liveness', 'speechiness', 'year', 'duration_ms', 
-            'key', 'mode'  
+            'tempo', 
+            'loudness', 
+            'valence', 
+            'energy',
+            'danceability', 
+            'acousticness', 
+            'instrumentalness', 
+            'liveness', 
+            'speechiness', 
+            'year', 
+            'duration_ms', 
+            'key', 
+            'mode'  
         ]
         self.categorical_features = [] 
         self.target = target
         self.max_popularity = 100  
         self.selected_features = None 
-        self.hit_threshold = 65  
         
     def preprocess_data(self, df):
         data = df.copy()
@@ -53,10 +57,9 @@ class HitSongPredictor:
         X = data[available_features].values
         
         return X, y, available_features
-        
-    def train(self, df, hyperparameter_tuning=True, use_feature_selection=True, hit_threshold=65):
+    
+    def train(self, df, hyperparameter_tuning=True, use_feature_selection=True):
 
-        self.hit_threshold = hit_threshold
         
         print("Preprocessing training data...")
         X, y, available_features = self.preprocess_data(df)
@@ -162,35 +165,9 @@ class HitSongPredictor:
             reverse=True
         )}
         
-        print("Top 5 important features:")
-        for feature, importance in list(self.feature_importance.items())[:5]:
+        print("\nTop 6 important features:")
+        for feature, importance in list(self.feature_importance.items())[:6]:
             print(f"{feature}: {importance:.4f}")
-        
-        print("Computing classification metrics...")
-        
-        y_test_binary = (y_test >= hit_threshold).astype(int)
-        y_pred_binary = (y_pred >= hit_threshold).astype(int)
-        
-        accuracy = accuracy_score(y_test_binary, y_pred_binary)
-        precision = precision_score(y_test_binary, y_pred_binary)
-        recall = recall_score(y_test_binary, y_pred_binary)
-        f1 = f1_score(y_test_binary, y_pred_binary)
-        
-        conf_matrix = confusion_matrix(y_test_binary, y_pred_binary)
-        
-        class_report = classification_report(y_test_binary, y_pred_binary, target_names=['Non-Hit', 'Hit'])
-        
-        print(f"Classification metrics (threshold={hit_threshold}):")
-        print(f"Accuracy: {accuracy:.4f}")
-        print(f"Precision: {precision:.4f}")
-        print(f"Recall: {recall:.4f}")
-        print(f"F1 Score: {f1:.4f}")
-        
-        print("\nConfusion Matrix:")
-        print(conf_matrix)
-        
-        print("\nClassification Report:")
-        print(class_report)
         
         return {
             "rmse": rmse,
@@ -198,16 +175,7 @@ class HitSongPredictor:
             "r2_score": r2,
             "feature_importance": self.feature_importance,
             "max_popularity": self.max_popularity,
-            "selected_features": self.selected_features,
-            "classification_metrics": {
-                "threshold": hit_threshold,
-                "accuracy": accuracy,
-                "precision": precision,
-                "recall": recall,
-                "f1_score": f1,
-                "confusion_matrix": conf_matrix.tolist(),
-                "classification_report": class_report
-            }
+            "selected_features": self.selected_features
         }
 
     def predict(self, song_data):
@@ -232,8 +200,7 @@ class HitSongPredictor:
         
         result = {
             "score": predicted_popularity,
-            "isHit": predicted_popularity >= self.hit_threshold,
-            "confidence": min(100, max(0, predicted_popularity)) / 100  # Add confidence score
+            "confidence": min(100, max(0, predicted_popularity)) / 100  
         }
         
         explanation = self._generate_explanation_factors(song_data)
@@ -326,117 +293,6 @@ class HitSongPredictor:
             "negativeFactors": negativeFactors
         }
     
-    def evaluate_thresholds(self, X, y, threshold_range=range(50, 80, 5)):
-
-        if self.model is None:
-            raise ValueError("Model not trained. Call train() first.")
-        
-        X_scaled = self.scaler.transform(X)
-        
-        y_pred = self.model.predict(X_scaled)
-        
-        results = {}
-        for threshold in threshold_range:
-            y_true_binary = (y >= threshold).astype(int)
-            y_pred_binary = (y_pred >= threshold).astype(int)
-            
-            accuracy = accuracy_score(y_true_binary, y_pred_binary)
-            precision = precision_score(y_true_binary, y_pred_binary)
-            recall = recall_score(y_true_binary, y_pred_binary)
-            f1 = f1_score(y_true_binary, y_pred_binary)
-            
-            results[threshold] = {
-                "accuracy": accuracy,
-                "precision": precision,
-                "recall": recall,
-                "f1_score": f1,
-                "hit_ratio": y_true_binary.mean() 
-            }
-        
-        return results
-    
-    def plot_roc_curve(self, X, y, hit_threshold=None):
-
-        if self.model is None:
-            raise ValueError("Model not trained. Call train() first.")
-        
-        if hit_threshold is None:
-            hit_threshold = self.hit_threshold
-        
-        X_scaled = self.scaler.transform(X)
-        
-        y_pred = self.model.predict(X_scaled)
-        
-        y_true_binary = (y >= hit_threshold).astype(int)
-        
-        fpr, tpr, _ = roc_curve(y_true_binary, y_pred)
-        roc_auc = auc(fpr, tpr)
-        
-        plt.figure(figsize=(10, 8))
-        plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (area = {roc_auc:.2f})')
-        plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-        plt.xlim([0.0, 1.0])
-        plt.ylim([0.0, 1.05])
-        plt.xlabel('False Positive Rate')
-        plt.ylabel('True Positive Rate')
-        plt.title('Receiver Operating Characteristic')
-        plt.legend(loc="lower right")
-        plt.savefig('roc_curve.png')
-        plt.close()
-        
-        return roc_auc
-    
-    def plot_classification_results(self, X, y, hit_threshold=None):
-        if self.model is None:
-            raise ValueError("Model not trained. Call train() first.")
-        
-        if hit_threshold is None:
-            hit_threshold = self.hit_threshold
-        
-        X_scaled = self.scaler.transform(X)
-        
-        y_pred = self.model.predict(X_scaled)
-        
-        y_true_binary = (y >= hit_threshold).astype(int)
-        y_pred_binary = (y_pred >= hit_threshold).astype(int)
-        
-        cm = confusion_matrix(y_true_binary, y_pred_binary)
-        
-        plt.figure(figsize=(8, 6))
-        plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
-        plt.title('Confusion Matrix')
-        plt.colorbar()
-        
-        classes = ['Non-Hit', 'Hit']
-        tick_marks = [0, 1]
-        plt.xticks(tick_marks, classes)
-        plt.yticks(tick_marks, classes)
-        
-        thresh = cm.max() / 2.
-        for i in range(cm.shape[0]):
-            for j in range(cm.shape[1]):
-                plt.text(j, i, format(cm[i, j], 'd'),
-                        horizontalalignment="center",
-                        color="white" if cm[i, j] > thresh else "black")
-        
-        plt.tight_layout()
-        plt.ylabel('True label')
-        plt.xlabel('Predicted label')
-        plt.savefig('confusion_matrix.png')
-        plt.close()
-        
-        plt.figure(figsize=(12, 8))
-        plt.scatter(y, y_pred, alpha=0.5)
-        plt.plot([0, 100], [0, 100], '--', color='red')
-        plt.plot([hit_threshold, hit_threshold], [0, 100], '--', color='green', label='Hit Threshold')
-        plt.plot([0, 100], [hit_threshold, hit_threshold], '--', color='green')
-        plt.xlabel('True Popularity')
-        plt.ylabel('Predicted Popularity')
-        plt.title('Predicted vs Actual Popularity')
-        plt.legend()
-        plt.savefig('prediction_scatter.png')
-        plt.close()
-    
     def save_model(self, filepath="hit_song_model.pkl"):
         if self.model is None:
             raise ValueError("No trained model to save")
@@ -448,8 +304,7 @@ class HitSongPredictor:
             "features": self.features,
             "categorical_features": self.categorical_features,
             "max_popularity": self.max_popularity,
-            "selected_features": self.selected_features,
-            "hit_threshold": self.hit_threshold
+            "selected_features": self.selected_features
         }
         
         with open(filepath, 'wb') as f:
@@ -472,7 +327,6 @@ class HitSongPredictor:
         self.categorical_features = model_data["categorical_features"]
         self.max_popularity = model_data.get("max_popularity", 100)
         self.selected_features = model_data.get("selected_features")
-        self.hit_threshold = model_data.get("hit_threshold", 65)
 
         print(f"Model loaded from {filepath}")
         print(f"Model trained with {len(self.selected_features or self.features)} features")
